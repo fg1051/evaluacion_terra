@@ -9,6 +9,7 @@ require_once("db.php");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Document</title>
 </head>
 <body>
@@ -58,7 +59,7 @@ require_once("db.php");
     function nuevoElementoLista(texto, id){
         const lista = document.getElementById('listaTareas');
         const li = document.createElement('li');
-        li.innerHTML = texto + " | <a href='#' onclick='EditarTarea("+id+")'>Editar</a>";
+        li.innerHTML = texto + " | <a href='#' onclick='EditarTarea("+id+")'>Editar</a>" + " | <a href='#' onclick='EliminarTarea("+id+")' class='linkEliminar'>Eliminar</a>";
         li.id = "task-"+id+"";
         lista.appendChild(li);
     }
@@ -99,7 +100,7 @@ require_once("db.php");
                 fetch('GetTarea.php?Id='+data["id"])
                     .then(response => response.json())
                     .then(data => {
-                        document.getElementById("task-"+data["id"]).innerHTML = data["task_name"] + " | <a href='#' onclick='EditarTarea("+Id+")'>Editar</a>";;
+                        document.getElementById("task-"+data["id"]).innerHTML = data["task_name"] + " | <a href='#' onclick='EditarTarea("+Id+")'>Editar</a> | <a href='#' onclick='EliminarTarea("+Id+")' class='linkEliminar'>Eliminar</a>";
                      
                     })
                     .catch(error =>{
@@ -114,6 +115,23 @@ require_once("db.php");
     }
     function cancelarEdicion(){
         document.getElementById('divEditarTarea').innerHTML = '';
+    }
+    function EliminarTarea(id){
+        const confirmation = confirm('¿Estás seguro de que deseas eliminar este elemento?');
+
+        if (confirmation) {
+            fetch('EliminarTarea.php?Id='+id)
+                .then(response => response.json())
+                .then(data =>{
+                    if(data.success){
+                        var task = document.getElementById("task-"+id);
+                        task.remove();
+                        document.getElementById('divEditarTarea').innerHTML = '';
+                    }
+                })
+        } else {
+        console.log('Eliminación cancelada');
+        }
     }
     window.onload = obtenerTareas;
 </script>

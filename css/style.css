@@ -83,3 +83,7 @@
     background-color: #e65f5f;
     color: black;
 }
+.opciones{
+    display: none;
+    margin-left: 20px;
+}
