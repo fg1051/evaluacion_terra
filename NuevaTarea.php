@@ -14,7 +14,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
     $insert -> bind_param("s", $tarea);
     if($insert -> execute()){
-        echo json_encode(['success' => true]);
+        $id = $insert->insert_id;
+        echo json_encode(['success' => true, 'id' => $id]);
     }else{
         echo json_encode(['success' => false]);
     }

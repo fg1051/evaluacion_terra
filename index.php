@@ -37,7 +37,15 @@ require_once("db.php");
         .then(response => response.json())
         .then(data =>{
             if(data.success){
-                console.log("exito al crear");
+
+                fetch('GetTarea.php?Id='+data["id"])
+                    .then(response => response.json())
+                    .then(data => {
+                        nuevoElementoLista(data["task_name"]);
+                    })
+                    .catch(error =>{
+                        console.log("Error al mostrar registro creado", error);
+                    });
             }else{
                 console.log("error al crear");
             }
@@ -45,6 +53,28 @@ require_once("db.php");
         document.getElementById('divNuevaTarea').innerHTML = '';
 
     };
-    
+
+    function nuevoElementoLista(texto){
+        const lista = document.getElementById('listaTareas');
+        const li = document.createElement('li');
+        li.textContent = texto;
+        lista.appendChild(li);
+    }
+    function obtenerTareas(){
+        fetch('GetTareas.php')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                const lista = document.getElementById('listaTareas');
+
+                data.forEach(tarea =>{
+                    nuevoElementoLista(tarea["task_name"]);
+                });
+            })
+            .catch(error => {
+                console.log("Error al obtener tareas", error);
+            });
+    }
+    window.onload = obtenerTareas;
 </script>
 </html>
