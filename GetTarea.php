@@ -5,7 +5,7 @@ if($conexion -> connect_error){
     die("Ocurrio un error en la conexion" . $conexion->connect_error);
 }
 $Id = $_GET['Id'];
-$consulta = "SELECT task_name, created_at FROM tasks WHERE id = '".$Id."'";
+$consulta = "SELECT id, task_name, created_at FROM tasks WHERE id = '".$Id."'";
 $get = $conexion -> prepare($consulta);
 
 if($get === false){

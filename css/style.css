@@ -52,3 +52,34 @@
 .txtForm:hover{
     border-color: #4ca3af;
 }
+.read{
+    cursor: not-allowed;
+    background-color: #c9c8c8;
+}
+.lblText{
+    font-size: 16px;
+    display: block;
+    color: #333;
+    margin-top: 15px;
+    margin-bottom: 15px;
+
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+.btnCancelar{
+    background-color: #c93c3c;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    transition: color 0.3s ease;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+    transition: color 0.3s ease;
+}
+.btnCancelar:hover{
+    background-color: #e65f5f;
+    color: black;
+}

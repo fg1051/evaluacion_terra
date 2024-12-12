@@ -18,6 +18,7 @@ require_once("db.php");
 
     <ul id="listaTareas">
     </ul>
+    <div id="divEditarTarea"></div>
 </body>
 <script>
     document.getElementById('btnAgregar').addEventListener('click', function(){
@@ -41,7 +42,7 @@ require_once("db.php");
                 fetch('GetTarea.php?Id='+data["id"])
                     .then(response => response.json())
                     .then(data => {
-                        nuevoElementoLista(data["task_name"]);
+                        nuevoElementoLista(data["task_name"], data["id"]);
                     })
                     .catch(error =>{
                         console.log("Error al mostrar registro creado", error);
@@ -54,10 +55,11 @@ require_once("db.php");
 
     };
 
-    function nuevoElementoLista(texto){
+    function nuevoElementoLista(texto, id){
         const lista = document.getElementById('listaTareas');
         const li = document.createElement('li');
-        li.textContent = texto;
+        li.innerHTML = texto + " | <a href='#' onclick='EditarTarea("+id+")'>Editar</a>";
+        li.id = "task-"+id+"";
         lista.appendChild(li);
     }
     function obtenerTareas(){
@@ -68,12 +70,50 @@ require_once("db.php");
                 const lista = document.getElementById('listaTareas');
 
                 data.forEach(tarea =>{
-                    nuevoElementoLista(tarea["task_name"]);
+                    nuevoElementoLista(tarea["task_name"], tarea["id"]);
                 });
             })
             .catch(error => {
                 console.log("Error al obtener tareas", error);
             });
+    }
+    function EditarTarea(id){
+        fetch('edit.php?Id='+id)
+            .then(response => response.text())
+            .then(data =>{
+                document.getElementById('divEditarTarea').innerHTML = data;
+            });
+    }
+    function editarTask(Id){
+        const formData = new FormData(document.getElementById('formEditTarea'));
+        
+        fetch('EditarTarea.php?Id='+Id,{
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data =>{
+            console.log("actualizado");
+            if(data.success){
+
+                fetch('GetTarea.php?Id='+data["id"])
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("task-"+data["id"]).innerHTML = data["task_name"] + " | <a href='#' onclick='EditarTarea("+Id+")'>Editar</a>";;
+                     
+                    })
+                    .catch(error =>{
+                        console.log("Error al mostrar registro actualizado", error);
+                    });
+            }else{
+                console.log("error al actualizar");
+            }
+        });
+        document.getElementById('divEditarTarea').innerHTML = '';
+
+    }
+    function cancelarEdicion(){
+        document.getElementById('divEditarTarea').innerHTML = '';
     }
     window.onload = obtenerTareas;
 </script>
