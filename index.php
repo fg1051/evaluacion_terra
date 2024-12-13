@@ -22,115 +22,101 @@ require_once("db.php");
     <div id="divEditarTarea"></div>
 </body>
 <script>
-    document.getElementById('btnAgregar').addEventListener('click', function(){
-        fetch('add.php')
-            .then(response => response.text())
-            .then(data =>{
-                document.getElementById('divNuevaTarea').innerHTML = data;
-            });
+    $('#btnAgregar').click(function() {
+        $.get('add.php', function(data) {
+            $('#divNuevaTarea').html(data);
+        });
     });
     function agregarTask(){
-        const formData = new FormData(document.getElementById('formNuevaTarea'));
+        var formData = new FormData($('#formNuevaTarea').get(0));
         
-        fetch('NuevaTarea.php',{
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data =>{
-            if(data.success){
-
-                fetch('GetTarea.php?Id='+data["id"])
-                    .then(response => response.json())
-                    .then(data => {
-                        nuevoElementoLista(data["task_name"], data["id"]);
+        $.ajax({
+            url: 'NuevaTarea.php',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                data = JSON.parse(data);
+                if (data.success) {
+                    $.getJSON('GetTarea.php?Id=' + data.id, function(data) {
+                        nuevoElementoLista(data.task_name, data.id);
+                        $('#divNuevaTarea').html('');
                     })
-                    .catch(error =>{
-                        console.log("Error al mostrar registro creado", error);
+                    .fail(function(error) {
+                        console.log('Error al mostrar registro creado', error);
                     });
-            }else{
-                console.log("error al crear");
+                } else {
+                    console.log('Error al crear');
+                }
             }
         });
-        document.getElementById('divNuevaTarea').innerHTML = '';
-
     };
 
-    function nuevoElementoLista(texto, id){
-        const lista = document.getElementById('listaTareas');
-        const li = document.createElement('li');
-        li.innerHTML = texto + " | <a href='#' onclick='EditarTarea("+id+")'>Editar</a>" + " | <a href='#' onclick='EliminarTarea("+id+")' class='linkEliminar'>Eliminar</a>";
-        li.id = "task-"+id+"";
-        lista.appendChild(li);
+    function nuevoElementoLista(texto, id) {
+    const lista = $('#listaTareas'); 
+    const li = $('<li></li>'); 
+    li.html(texto + " | <a href='#' onclick='EditarTarea("+id+")'>Editar</a>" + " | <a href='#' onclick='EliminarTarea("+id+")' class='linkEliminar'>Eliminar</a>");
+    li.attr('id', 'task-' + id); 
+    lista.append(li); 
     }
-    function obtenerTareas(){
-        fetch('GetTareas.php')
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                const lista = document.getElementById('listaTareas');
-
-                data.forEach(tarea =>{
-                    nuevoElementoLista(tarea["task_name"], tarea["id"]);
-                });
-            })
-            .catch(error => {
-                console.log("Error al obtener tareas", error);
+    function obtenerTareas() {
+        $.getJSON('GetTareas.php', function(data) {
+            console.log(data);
+            data.forEach(function(tarea) {
+                nuevoElementoLista(tarea.task_name, tarea.id);
             });
+        })
+        .fail(function(error) {
+            console.log('Error al obtener tareas', error);
+        });
     }
-    function EditarTarea(id){
-        fetch('edit.php?Id='+id)
-            .then(response => response.text())
-            .then(data =>{
-                document.getElementById('divEditarTarea').innerHTML = data;
-            });
+    function EditarTarea(id) {
+        $.get('edit.php?Id=' + id, function(data) {
+            $('#divEditarTarea').html(data);
+        });
     }
     function editarTask(Id){
-        const formData = new FormData(document.getElementById('formEditTarea'));
+        const formData = new FormData($('#formEditTarea')[0]);
         
-        fetch('EditarTarea.php?Id='+Id,{
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data =>{
-            console.log("actualizado");
-            if(data.success){
-
-                fetch('GetTarea.php?Id='+data["id"])
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById("task-"+data["id"]).innerHTML = data["task_name"] + " | <a href='#' onclick='EditarTarea("+Id+")'>Editar</a> | <a href='#' onclick='EliminarTarea("+Id+")' class='linkEliminar'>Eliminar</a>";
-                     
+        $.ajax({
+            url: 'EditarTarea.php?Id=' + Id,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                data = JSON.parse(data);
+                if (data.success) {
+                    $.getJSON('GetTarea.php?Id=' + data.id, function(data) {
+                        $('#task-' + data.id).html(data.task_name + " | <a href='#' onclick='EditarTarea(" + Id + ")'>Editar</a> | <a href='#' onclick='EliminarTarea(" + Id + ")' class='linkEliminar'>Eliminar</a>");
+                        $('#divEditarTarea').html('');
                     })
-                    .catch(error =>{
-                        console.log("Error al mostrar registro actualizado", error);
+                    .fail(function(error) {
+                        console.log('Error al mostrar registro actualizado', error);
                     });
-            }else{
-                console.log("error al actualizar");
+                } else {
+                    console.log('Error al actualizar');
+                }
             }
         });
-        document.getElementById('divEditarTarea').innerHTML = '';
 
     }
-    function cancelarEdicion(){
-        document.getElementById('divEditarTarea').innerHTML = '';
+    function cancelarEdicion() {
+        $('#divEditarTarea').html('');
     }
-    function EliminarTarea(id){
+    function EliminarTarea(id) {
         const confirmation = confirm('¿Estás seguro de que deseas eliminar este elemento?');
 
         if (confirmation) {
-            fetch('EliminarTarea.php?Id='+id)
-                .then(response => response.json())
-                .then(data =>{
-                    if(data.success){
-                        var task = document.getElementById("task-"+id);
-                        task.remove();
-                        document.getElementById('divEditarTarea').innerHTML = '';
-                    }
-                })
+            $.getJSON('EliminarTarea.php?Id=' + id, function(data) {
+                if (data.success) {
+                    $('#task-' + id).remove();
+                    $('#divEditarTarea').html('');
+                }
+            });
         } else {
-        console.log('Eliminación cancelada');
+            console.log('Eliminación cancelada');
         }
     }
     window.onload = obtenerTareas;
