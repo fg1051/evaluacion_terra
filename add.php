@@ -8,5 +8,6 @@ echo '
 
         <button class ="btnNuevo" id="btnNuevo" > Guardar </button>    
     </form>        
+    <button class="btnCancelar" onclick="cancelarNuevaTarea()">Cancelar</button>
 ';
         

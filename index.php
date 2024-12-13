@@ -13,13 +13,30 @@ require_once("db.php");
     <title>Document</title>
 </head>
 <body>
-    <button id="btnAgregar" class="btnAgregar">Nueva Tarea</button>
+    <div class="display">
+        <div class="header">
+            Lista de Tareas
+        </div>
+        <div class="row">
+            <div class="display-headerL">
+                <button id="btnAgregar" class="btnAgregar">Nueva Tarea</button>
+            </div>
+            <div class="display-headerR">
+                Tareas Actuales
+            </div>
+        </div>
+        <div class="row">
+            <div class="content-left">
+                <div id="divNuevaTarea"></div>
+                <div id="divEditarTarea"></div>
+            </div>
+            <div class="nuevo-headerR">Tareas Actuales</div>
+            <div class="content-right">
+                <ul id="listaTareas"></ul>
+            </div>
+        </div>
+    </div>
 
-    <div id="divNuevaTarea"></div>
-
-    <ul id="listaTareas">
-    </ul>
-    <div id="divEditarTarea"></div>
 </body>
 <script>
     $('#btnAgregar').click(function() {
@@ -56,9 +73,13 @@ require_once("db.php");
     function nuevoElementoLista(texto, id) {
     const lista = $('#listaTareas'); 
     const li = $('<li></li>'); 
+    const div = $('<div></div>')
     li.html(texto + " | <a href='#' onclick='EditarTarea("+id+")'>Editar</a>" + " | <a href='#' onclick='EliminarTarea("+id+")' class='linkEliminar'>Eliminar</a>");
     li.attr('id', 'task-' + id); 
-    lista.append(li); 
+    div.attr('class', 'tarea');
+    div.attr('id', 'div-tarea-' + id);
+    div.append(li);
+    lista.append(div); 
     }
     function obtenerTareas() {
         $.getJSON('GetTareas.php', function(data) {
@@ -72,6 +93,7 @@ require_once("db.php");
         });
     }
     function EditarTarea(id) {
+        $('#divNuevaTarea').html('');
         $.get('edit.php?Id=' + id, function(data) {
             $('#divEditarTarea').html(data);
         });
@@ -105,6 +127,9 @@ require_once("db.php");
     function cancelarEdicion() {
         $('#divEditarTarea').html('');
     }
+    function cancelarNuevaTarea(){
+        $('#divNuevaTarea').html('');
+    }
     function EliminarTarea(id) {
         const confirmation = confirm('¿Estás seguro de que deseas eliminar este elemento?');
 
@@ -113,6 +138,7 @@ require_once("db.php");
                 if (data.success) {
                     $('#task-' + id).remove();
                     $('#divEditarTarea').html('');
+                    $('#div-tarea-' + id).remove();
                 }
             });
         } else {
